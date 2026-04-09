@@ -1,0 +1,16 @@
+name = "nucleo_g431kb"
+description = ""
+version = "0.1.0-dev"
+
+authors = ["Your Name"]
+maintainers = ["Your Name <example@example.com>"]
+licenses = "MIT OR Apache-2.0 WITH LLVM-exception"
+website = ""
+tags = []
+
+[[depends-on]]
+light_tasking_stm32g4xx = "*"
+stm32g4_ghal = "*"
+
+[[pins]]
+stm32g4_ghal = { path = "../stm32g4_ghal" }
