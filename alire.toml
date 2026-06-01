@@ -13,7 +13,7 @@ light_tasking_stm32g4xx = "*"
 stm32g431 = "*"
 
 [[pins]]
-stm32g431 = { url = "https://github.com/GNAT-Academic-Program/stm32g431kb_ghal.git", branch = "main" }
+stm32g431 = { url = "https://github.com/GNAT-Academic-Program/stm32g431_ghal.git", branch = "main" }
 
 [configuration.values]
 # ----------------------------------------------------------------------------
