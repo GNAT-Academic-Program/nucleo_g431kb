@@ -2,15 +2,64 @@ name = "nucleo_g431kb"
 description = ""
 version = "0.1.0-dev"
 
-authors = ["Your Name"]
-maintainers = ["Your Name <example@example.com>"]
+authors = ["Olivier Henley"]
+maintainers = ["Olivier Henley <olivier.henley@gmail.com>"]
 licenses = "MIT OR Apache-2.0 WITH LLVM-exception"
 website = ""
 tags = []
 
 [[depends-on]]
 light_tasking_stm32g4xx = "*"
-stm32g4_ghal = "*"
+stm32g431 = "*"
 
 [[pins]]
-stm32g4_ghal = { path = "../stm32g4_ghal" }
+stm32g431 = { url = "https://github.com/GNAT-Academic-Program/stm32g431kb_ghal.git", branch = "main" }
+
+[configuration.values]
+# ----------------------------------------------------------------------------
+# Nucleo-G431KB clock configuration
+#
+# INVARIANT: the stm32g431.* and light_tasking_stm32g4xx.* values below
+# describe the same physical clocking and MUST stay in sync. The stm32g431
+# crate uses them to compute peripheral clocks (Clock_Tree); the runtime
+# uses them to configure SysTick and the PLL at startup.
+#
+# Source: HSI16 (internal 16 MHz RC), no external HSE used.
+# Reason: startup does not block waiting for ST-Link MCO / external crystal.
+#
+# PLL math:
+#   HSI16 / PLL_M_Div = 16 MHz / 4   = 4 MHz   (VCO input)
+#   4 MHz * PLL_N_Mul = 4 MHz * 40   = 160 MHz (VCO)
+#   VCO / PLL_R_Div   = 160 MHz / 2  = 80 MHz  (SYSCLK)
+#
+# NOTE: the comment in the original TOML claimed 24 MHz input and 120 MHz
+# SYSCLK; with HSI16 as PLL source the actual SYSCLK is 80 MHz. Verify
+# against your intent before committing.
+# ----------------------------------------------------------------------------
+
+# Target microcontroller
+light_tasking_stm32g4xx.MCU_Sub_Family        = "G431"
+light_tasking_stm32g4xx.MCU_Flash_Memory_Size = "B"
+
+# Clock sources
+light_tasking_stm32g4xx.SYSCLK_Src = "PLLRCLK"
+stm32g431.SYSCLK_Src               = "PLLRCLK"
+
+# HSE frequency (unused with HSI16 source, declared for completeness)
+stm32g431.HSE_Hz = 0
+
+# PLL math
+light_tasking_stm32g4xx.PLL_M_Div = 4
+light_tasking_stm32g4xx.PLL_N_Mul = 40
+light_tasking_stm32g4xx.PLL_R_Div = "DIV2"
+stm32g431.PLL_M_Div               = 4
+stm32g431.PLL_N_Mul               = 40
+stm32g431.PLL_R_Div               = "DIV2"
+
+# Bus prescalers
+light_tasking_stm32g4xx.AHB_Pre  = "DIV1"
+light_tasking_stm32g4xx.APB1_Pre = "DIV1"
+light_tasking_stm32g4xx.APB2_Pre = "DIV1"
+stm32g431.AHB_Pre                = "DIV1"
+stm32g431.APB1_Pre               = "DIV1"
+stm32g431.APB2_Pre               = "DIV1"
