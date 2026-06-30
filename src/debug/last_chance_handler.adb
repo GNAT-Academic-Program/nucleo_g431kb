@@ -1,6 +1,5 @@
 with Board;
 with Gpio;
-with Usart_Types;
 with System; use System;
 with System.Storage_Elements; use System.Storage_Elements;
 
@@ -9,15 +8,13 @@ package body Last_Chance_Handler is
    procedure Last_Chance_Handler (Msg : System.Address; Line : Integer) is
 
       procedure Console_Write (S : String) is
-         Buf     : Storage_Array (1 .. Storage_Offset (S'Length));
-         J       : Storage_Offset := Buf'First;
          Written : Storage_Offset;
+         Buf     : Storage_Array (1 .. S'Length);
       begin
-         for C of S loop
-            Buf (J) := Storage_Element (Character'Pos (C));
-            J := J + 1;
+         for I in S'Range loop
+            Buf (Storage_Offset (I - S'First + 1)) := Storage_Element (Character'Pos (S (I)));
          end loop;
-         Board.Console.Write (Board.CONSOLE_DEV, Buf, Written);
+         Board.Console.Write (Buf, Written);
       end Console_Write;
 
       function Msg_String return String is
@@ -44,13 +41,6 @@ package body Last_Chance_Handler is
 
    begin
       Board.Initialize;
-      Board.Console.Open
-        (Board.CONSOLE_DEV,
-         (Baud      => Usart_Types.B115200,
-          Data_Bits => Usart_Types.Data_8,
-          Parity    => Usart_Types.None,
-          Stop_Bits => Usart_Types.Stop_1,
-          Flow      => Usart_Types.None));
 
       Console_Write ("CRASH at line ");
       Console_Write (Integer'Image (Line));
@@ -59,7 +49,7 @@ package body Last_Chance_Handler is
       Console_Write ("" & ASCII.CR & ASCII.LF);
 
       loop
-         Gpio.Toggle (Board.LED);
+         Gpio.Toggle (Board.Led);
          delay 0.05;
       end loop;
    end Last_Chance_Handler;
